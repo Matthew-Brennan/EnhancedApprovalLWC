@@ -71,7 +71,7 @@ public with sharing class GetApprovals {
         return flattenedData;
     }
         // Method to get the name of the record based on its object type
-        private static String getRecordName(Id recordId) {
+        public static String getRecordName(Id recordId) {
             if (recordId != null) {
                 // Query the Name field from the record's object
                 String nameQuery = 'SELECT Name FROM ' + recordId.getSObjectType() + ' WHERE Id = \'' + recordId + '\' LIMIT 1';
