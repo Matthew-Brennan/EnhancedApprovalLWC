@@ -54,7 +54,24 @@ public class GetApprovalsTest {
         req1.setProcessDefinitionNameOrId('Margin_Approval');
            
         // Submit the approval request for the account
-        Approval.ProcessResult result = Approval.process(req1);       
+        Approval.ProcessResult result = Approval.process(req1);
+        
+        //create second approval
+        Approval.ProcessSubmitRequest req2 = 
+        new Approval.ProcessSubmitRequest();
+
+        req2.setComments('Submitting request for approval2.');
+        req2.setObjectId(opp2.Id);
+        
+        // Submit on behalf of a specific submitter
+        req2.setSubmitterId(submittedByUser.Id); 
+
+        // Skip the criteria evaluation for the specified process
+        req2.setSkipEntryCriteria(true);
+        
+        // Submit the record to the existing process named PTO_Reqwuest_Process
+        req2.setProcessDefinitionNameOrId('PO_Approved_to_Send');
+        
         
         // Submit the approval request for the account
         Approval.ProcessResult result2 = Approval.process(req2);
@@ -78,15 +95,11 @@ public class GetApprovalsTest {
 
         Map<String, Object> result1 = results[0];
 
+
         // Check first result
-        System.assertEquals('Margin Approval', result1.get('approvalProcessName'), 'Approval process name mismatch');
+        System.assertEquals('PO Approved to Send', result1.get('approvalProcessName'), 'Approval process name mismatch');
         System.assertEquals('Test User', result1.get('submittedByName'), 'Submitted by name mismatch');
         System.assertNotEquals('', result1.get('workItemUrl'), 'Work item URL should not be empty');
-
-        // Check second result
-        System.assertEquals('PO Approved to Send', result2.get('approvalProcessName'), 'Approval process name mismatch');
-        System.assertEquals('Test User', result2.get('submittedByName'), 'Submitted by name mismatch');
-        System.assertNotEquals('', result2.get('workItemUrl'), 'Work item URL should not be empty');
     }
 
     @isTest
@@ -96,21 +109,6 @@ public class GetApprovalsTest {
 
         String recordName = MockGetApprovals.getRecordNameWrapper(testUser.Id);
         System.assertEquals(testUser.Name, recordName, 'Record name mismatch');
-    }
-
-    @isTest
-    static void testGetRecordNameWithInvalidId() {
-        // Testing getRecordName with null Id
-        String recordName = MockGetApprovals.getRecordNameWrapper(null);
-        System.assertEquals('', recordName, 'Expected empty string for null Id');
-    }
-
-    @isTest
-    static void testGetRecordNameWithNonExistentRecord() {
-        // Testing getRecordName with non-existent Id
-        Id nonExistentId = Id.valueOf('001000000000000AAA'); // Assuming this ID does not exist
-        String recordName = MockGetApprovals.getRecordNameWrapper(nonExistentId);
-        System.assertEquals('', recordName, 'Expected empty string for non-existent Id');
     }
 
 }

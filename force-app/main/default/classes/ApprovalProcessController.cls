@@ -1,4 +1,5 @@
 public with sharing class ApprovalProcessController {
+    
     @AuraEnabled
     public static void approveAction(String processStepId) {
         try {
@@ -58,34 +59,4 @@ public with sharing class ApprovalProcessController {
             throw new AuraHandledException('An error occurred while rejecting: ' + e.getMessage());
         }
     }
-
-    // @AuraEnabled
-    // public static void reassignAction(String processStepId) {
-    //     try {
-    //         // Retrieve the ProcessInstanceWorkitem record related to the ProcessInstanceStep
-    //         ProcessInstanceWorkitem workitem = [SELECT Id, ProcessInstanceId, ActorId FROM ProcessInstanceWorkitem WHERE Id = :processStepId LIMIT 1];
-
-    //         // Set the new actor (reassign the work item)
-    //         // Here, we're just setting the actor to the default approver in the approval process
-    //         Id newActorId = [SELECT Id FROM User WHERE Id != :workitem.ActorId LIMIT 1].Id;
-
-    //         // Reassign the ProcessInstanceWorkitem
-    //         Approval.ProcessWorkitemRequest req = new Approval.ProcessWorkitemRequest();
-    //         req.setComments('Reassigned via Lightning');
-    //         req.setAction('Reassign');
-    //         req.setWorkitemId(workitem.Id);
-    //         req.setNextApproverIds(new List<Id>{newActorId});
-    //         Approval.ProcessResult result = Approval.process(req);
-
-    //         // Check if the reassignment was successful
-    //         if (result.isSuccess()) {
-    //             System.debug('Reassignment successful');
-    //         } else {
-    //             System.debug('Reassignment failed: ' + result.getErrors()[0].getMessage());
-    //         }
-    //     } catch (Exception e) {
-    //         System.debug('An error occurred while reassigning: ' + e.getMessage());
-    //         throw new AuraHandledException('An error occurred while reassigning: ' + e.getMessage());
-    //     }
-    // }
 }

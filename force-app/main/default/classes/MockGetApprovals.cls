@@ -46,7 +46,7 @@ global class MockGetApprovals {
 
     // Wrapper for the getRecordName method to make it accessible in tests
     @TestVisible
-    private static String getRecordNameWrapper(Id recordId) {
+    global static String getRecordNameWrapper(Id recordId) {
         return GetApprovals.getRecordName(recordId);
     }
 }
