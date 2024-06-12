@@ -37,6 +37,12 @@ public class GetApprovalsTest {
         );
         insert opp2;
 
+        Case testcase = new Case(
+            Subject = 'Test Case',
+            OwnerId = submittedByUser.Id
+        );
+        insert testcase;
+
         // Submit the first approval process
         Approval.ProcessSubmitRequest req1 = new Approval.ProcessSubmitRequest();
         req1.setComments('Submitting request for approval.');
@@ -107,10 +113,14 @@ public class GetApprovalsTest {
 
     @isTest
     static void testGetRecordName() {
-        // Use an existing User record to test getRecordName
-        User testUser = [SELECT Id, Name FROM User LIMIT 1];
+        // Test with an Opportunity
+        Opportunity testOpp = [SELECT Id, Name FROM Opportunity WHERE Name = 'Test Opportunity 1' LIMIT 1];
+        String oppName = GetApprovals.getRecordName(testOpp.Id);
+        System.assertEquals(testOpp.Name, oppName, 'Opportunity record name mismatch');
 
-        String recordName = GetApprovals.getRecordName(testUser.Id);
-        System.assertEquals(testUser.Name, recordName, 'Record name mismatch');
+        // Test with a Case
+        Case testCase = [SELECT Id, Subject FROM Case WHERE Subject = 'Test Case' LIMIT 1];
+        String caseName = GetApprovals.getRecordName(testCase.Id);
+        System.assertEquals(testCase.Subject, caseName, 'Case record name mismatch');
     }
 }

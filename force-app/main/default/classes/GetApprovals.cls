@@ -72,12 +72,20 @@ public with sharing class GetApprovals {
 
     // Method to get the name of the record based on its object type
     public static String getRecordName(Id recordId) {
-        if (recordId != null) {
+        if (recordId != null && recordId.getSObjectType() == Opportunity.SObjectType) {
             // Query the Name field from the record's object
             String nameQuery = 'SELECT Name FROM ' + recordId.getSObjectType() + ' WHERE Id = \'' + recordId + '\' LIMIT 1';
             SObject record = Database.query(nameQuery);
             if (record != null && record.get('Name') != null) {
                 return String.valueOf(record.get('Name'));
+            }
+        } 
+        //Cases dont have the name field so they need to be handled using Subject
+        else if (recordId.getSObjectType() == Case.SObjectType) { 
+            // Query the Subject field from the Case object
+            Case record = [SELECT Subject FROM Case WHERE Id = :recordId LIMIT 1];
+            if (record != null && record.Subject != null) {
+                return record.Subject;
             }
         }
         return '';
