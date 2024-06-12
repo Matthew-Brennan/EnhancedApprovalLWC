@@ -1,6 +1,5 @@
 public with sharing class GetApprovals {
 
-
     @AuraEnabled(cacheable=true)
     public static List<Map<String, Object>> getApprovalProcesses() {
         // Get the base URL from custom label
@@ -16,15 +15,16 @@ public with sharing class GetApprovals {
             [SELECT Id, Name FROM User]
         );
 
-
-        // Get ProcessInstances and Steps with Workitems
+        // Get ProcessInstances and Steps with Workitems where the approver is the current user
         List<ProcessInstance> processInstances = [
             SELECT Id, TargetObjectId, Status, CreatedDate, ProcessDefinitionId, SubmittedById,
                    (SELECT Id, StepStatus, OriginalActorId, ActorId, Comments, CreatedDate 
                     FROM Steps),
-                   (SELECT Id, ProcessInstanceId  FROM Workitems)
+                   (SELECT Id, ProcessInstanceId 
+                    FROM Workitems 
+                    WHERE ActorId = :UserInfo.getUserId())
             FROM ProcessInstance
-            WHERE Status IN ('Pending')
+            WHERE Status IN ('Pending') AND Id IN (SELECT ProcessInstanceId FROM ProcessInstanceWorkitem WHERE ActorId = :UserInfo.getUserId())
         ];
 
         List<Map<String, Object>> flattenedData = new List<Map<String, Object>>();
@@ -32,7 +32,6 @@ public with sharing class GetApprovals {
         for (ProcessInstance processInstance : processInstances) {
             String processDefinitionName = processDefinitionMap.get(processInstance.ProcessDefinitionId).Name;
             String submittedByName = userMap.get(processInstance.SubmittedById) != null ? userMap.get(processInstance.SubmittedById).Name : '';
-
 
             for (ProcessInstanceStep step : processInstance.Steps) {
                 // Handle Workitems
@@ -70,16 +69,17 @@ public with sharing class GetApprovals {
 
         return flattenedData;
     }
-        // Method to get the name of the record based on its object type
-        public static String getRecordName(Id recordId) {
-            if (recordId != null) {
-                // Query the Name field from the record's object
-                String nameQuery = 'SELECT Name FROM ' + recordId.getSObjectType() + ' WHERE Id = \'' + recordId + '\' LIMIT 1';
-                SObject record = Database.query(nameQuery);
-                if (record != null && record.get('Name') != null) {
-                    return String.valueOf(record.get('Name'));
-                }
+
+    // Method to get the name of the record based on its object type
+    public static String getRecordName(Id recordId) {
+        if (recordId != null) {
+            // Query the Name field from the record's object
+            String nameQuery = 'SELECT Name FROM ' + recordId.getSObjectType() + ' WHERE Id = \'' + recordId + '\' LIMIT 1';
+            SObject record = Database.query(nameQuery);
+            if (record != null && record.get('Name') != null) {
+                return String.valueOf(record.get('Name'));
             }
-            return '';
         }
+        return '';
     }
+}
