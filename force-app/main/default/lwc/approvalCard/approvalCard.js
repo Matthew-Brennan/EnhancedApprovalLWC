@@ -21,7 +21,7 @@ export default class ApprovalCard extends LightningElement {
                     day: 'numeric'
                 }).format(new Date(process.createdDate));
                 
-                let { recordName, workItemId, approvalProcessName, submittedByName, comments, ...rest } = process;
+                let { recordName, workItemUrl, workItemId, approvalProcessName, submittedByName, comments, ...rest } = process;
                 let customData = {};
                 console.log(approvalProcessName);
                 switch (approvalProcessName) {
@@ -32,6 +32,7 @@ export default class ApprovalCard extends LightningElement {
                             submittedByName,
                             comments,
                             workItemId,
+                            workItemUrl,
                             createdDate: formattedDate,
                             customField1: 'Margin',
                             customField2: 'psas',
@@ -44,6 +45,7 @@ export default class ApprovalCard extends LightningElement {
                             submittedByName,
                             comments,
                             workItemId,
+                            workItemUrl,
                             createdDate: formattedDate,
                             customField1: 'PO',
                             customField2: rest.anotherPOSpecificField,
@@ -56,6 +58,7 @@ export default class ApprovalCard extends LightningElement {
                             submittedByName,
                             comments,
                             workItemId,
+                            workItemUrl,
                             createdDate: formattedDate,
                             customField1: 'Revert',
                             customField2: rest.anotherRevertSpecificField,
@@ -68,6 +71,7 @@ export default class ApprovalCard extends LightningElement {
                             submittedByName,
                             comments,
                             workItemId,
+                            workItemUrl,
                             createdDate: formattedDate,
                             customField1: 'Default',
                             customField2: rest.defaultField2,
@@ -117,10 +121,12 @@ export default class ApprovalCard extends LightningElement {
             });
     }
 
+    //requery for to refresh the data
     refreshData() {
         return refreshApex(this.wiredApprovalProcessesResult);
     }
 
+    //Display the pop-up (toast) message with the success or error details
     showToast(title, message, variant) {
         const event = new ShowToastEvent({
             title,

@@ -72,8 +72,8 @@ public with sharing class GetApprovals {
 
     // Method to get the name of the record based on its object type
     public static String getRecordName(Id recordId) {
-        if (recordId != null && recordId.getSObjectType() == Opportunity.SObjectType) {
-            // Query the Name field from the record's object
+        if (recordId != null && recordId.getSObjectType() != Case.SObjectType) {
+            // Query the Name field from the record's object This works for Opps and Accounts
             String nameQuery = 'SELECT Name FROM ' + recordId.getSObjectType() + ' WHERE Id = \'' + recordId + '\' LIMIT 1';
             SObject record = Database.query(nameQuery);
             if (record != null && record.get('Name') != null) {
