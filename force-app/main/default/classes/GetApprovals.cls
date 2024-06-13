@@ -45,12 +45,21 @@ public with sharing class GetApprovals {
                     }
                 }
 
-                String recordName = getRecordName(processInstance.TargetObjectId);
 
-                Map<String, Object> flattenedRecord = new Map<String, Object>{
+                Id recordId = processInstance.TargetObjectId;
+
+                //get and build the data for an opportunity
+                if (recordId != null && recordId.getSObjectType() == Opportunity.SObjectType) {
+                    // Query the Name field from the record's object This works for Opps and Accounts
+                   Opportunity opp = [SELECT Name, Total_Client_Sales_Price__c, Total_Actual_Margin__c, Total_Eastbay_Cost_New__c  FROM Opportunity  WHERE Id = :recordId LIMIT 1];
+
+                   Map<String, Object> flattenedRecord = new Map<String, Object>{
                     'id' => step.Id,
                     'approvalProcessName' => processDefinitionName,
-                    'recordName' => recordName,
+                    'recordName' => opp.Name,
+                    'recordCost' => opp.Total_Eastbay_Cost_New__c,
+                    'recordClientCost' => opp.Total_Client_Sales_Price__c,
+                    'recordMargin' => opp.Total_Actual_Margin__c,
                     'targetObjectId' => processInstance.TargetObjectId,
                     'status' => processInstance.Status,
                     'createdDate' => processInstance.CreatedDate,
@@ -62,11 +71,37 @@ public with sharing class GetApprovals {
                     'submittedByName' => submittedByName,
                     'workItemId' => workItemId,
                     'workItemUrl' => workItemId != '' ? baseUrl + '/' + workItemId : ''
-                };
-                flattenedData.add(flattenedRecord);
+                    };
+                    flattenedData.add(flattenedRecord);
+                              
+                }
+
+                 //get and build the data for an Case
+                if (recordId != null && recordId.getSObjectType() == Case.SObjectType) {
+                    // Query the Case
+                    Case cs = [SELECT Subject FROM Case  WHERE Id = :recordId LIMIT 1];
+
+                    Map<String, Object> flattenedRecord = new Map<String, Object>{
+                        'id' => step.Id,
+                        'approvalProcessName' => processDefinitionName,
+                        'recordName' => cs.Subject,
+                        'targetObjectId' => processInstance.TargetObjectId,
+                        'status' => processInstance.Status,
+                        'createdDate' => processInstance.CreatedDate,
+                        'stepStatus' => step.StepStatus,
+                        'originalActorId' => step.OriginalActorId,
+                        'actorId' => step.ActorId,
+                        'comments' => step.Comments,
+                        'stepCreatedDate' => step.CreatedDate,
+                        'submittedByName' => submittedByName,
+                        'workItemId' => workItemId,
+                        'workItemUrl' => workItemId != '' ? baseUrl + '/' + workItemId : ''
+                    };
+                    flattenedData.add(flattenedRecord);
+                               
+                }               
             }
         }
-
         return flattenedData;
     }
 

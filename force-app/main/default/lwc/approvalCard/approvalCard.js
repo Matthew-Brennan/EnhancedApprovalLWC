@@ -34,8 +34,10 @@ export default class ApprovalCard extends LightningElement {
                             workItemId,
                             workItemUrl,
                             createdDate: formattedDate,
-                            customField1: 'Margin',
-                            customField2: 'psas',
+                            customField1: rest.recordCost,
+                            customField2: rest.recordClientCost,
+                            customField3: rest.recordMargin,
+
                         };
                         break;
                     case 'PO Approved to Send':
@@ -47,8 +49,9 @@ export default class ApprovalCard extends LightningElement {
                             workItemId,
                             workItemUrl,
                             createdDate: formattedDate,
-                            customField1: 'PO',
-                            customField2: rest.anotherPOSpecificField,
+                            customField1: rest.recordCost,
+                            customField2: rest.recordClientCost,
+                            customField3: rest.recordMargin,
                         };
                         break;
                     case 'Revert Sales Order to Sales Opp':
@@ -60,9 +63,13 @@ export default class ApprovalCard extends LightningElement {
                             workItemId,
                             workItemUrl,
                             createdDate: formattedDate,
-                            customField1: 'Revert',
-                            customField2: rest.anotherRevertSpecificField,
+                            customField1: rest.recordCost,
+                            customField2: rest.recordClientCost,
+                            customField3: '<strong>Margin:</strong>' + rest.recordMargin,
                         };
+
+                        var paragraph = document.getElementById("customField3")
+                        paragraph.insertAdjacentHTML('beforeend', customData.customField3);
                         break;
                     default:
                         customData = {
